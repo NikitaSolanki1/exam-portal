@@ -1,5 +1,12 @@
+# Python
 venv/
 __pycache__/
-instance/
+backend/instance/
+
+# Node
+node_modules/
+dist/
+
+# Other
 .claude/
 .DS_Store
