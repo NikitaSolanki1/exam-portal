@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<div class="card auth-card"><div class="card-body p-4">
+  <h4 class="fw-bold mb-3">My profile</h4>
+  <form method="post">
+    <div class="mb-3">
+      <label class="form-label">Email</label>
+      <input class="form-control" value="{{ current_user.email }}" disabled>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Full name</label>
+      <input name="name" class="form-control" value="{{ current_user.name }}" required>
+    </div>
+    <div class="row g-2 mb-3">
+      <div class="col">
+        <label class="form-label">Phone</label>
+        <input name="phone" class="form-control" value="{{ current_user.phone or '' }}">
+      </div>
+      <div class="col">
+        <label class="form-label">Department</label>
+        <input name="department" class="form-control" value="{{ current_user.department or '' }}">
+      </div>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">New password <span class="text-muted small">(leave empty to keep the old one)</span></label>
+      <input type="password" name="password" class="form-control" minlength="4">
+    </div>
+    <button class="btn btn-primary w-100">Save profile</button>
+  </form>
+</div></div>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Student Dashboard{% endblock %}
+{% block content %}
+<h3 class="page-title mb-4">Hi, {{ current_user.name }}</h3>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3"><div class="card stat-card h-100"><div class="card-body">
+    <div class="icon mb-2"><i class="bi bi-clipboard-check"></i></div>
+    <div class="value">{{ open_exams|length }}</div><div class="text-muted small">Exams open for booking</div>
+  </div></div></div>
+  <div class="col-6 col-md-3"><div class="card stat-card h-100"><div class="card-body">
+    <div class="icon mb-2"><i class="bi bi-calendar-week"></i></div>
+    <div class="value">{{ free_slots }}</div><div class="text-muted small">Available slots</div>
+  </div></div></div>
+  <div class="col-6 col-md-3"><div class="card stat-card h-100"><div class="card-body">
+    <div class="icon mb-2"><i class="bi bi-bookmark-check"></i></div>
+    <div class="value">{{ booked_count }}</div><div class="text-muted small">Booked slots</div>
+  </div></div></div>
+  <div class="col-6 col-md-3"><div class="card stat-card h-100"><div class="card-body">
+    <div class="icon mb-2"><i class="bi bi-award"></i></div>
+    <div class="value">{{ results|length }}</div><div class="text-muted small">Published results</div>
+  </div></div></div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="card mb-3"><div class="card-body">
+      <h5 class="card-title mb-3">Upcoming exams</h5>
+      {% for b in upcoming %}
+        <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+          <div>
+            <div class="fw-semibold">{{ b.exam.name }} <span class="small text-muted">({{ b.exam.course.code }})</span></div>
+            <div class="small text-muted">{{ b.slot.date.strftime('%a, %d %b %Y') }} · {{ b.slot.start_time.strftime('%H:%M') }} – {{ b.slot.end_time.strftime('%H:%M') }} · {{ b.slot.examiner.name }}</div>
+          </div>
+          <span class="badge status-booked">Booked</span>
+        </div>
+      {% else %}
+        <p class="text-muted mb-0">No upcoming exams. <a href="{{ url_for('student.exams') }}">Book a slot</a>.</p>
+      {% endfor %}
+    </div></div>
+
+    <div class="card"><div class="card-body">
+      <h5 class="card-title mb-3">Published results</h5>
+      {% for b in results %}
+        <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+          <div class="fw-semibold">{{ b.exam.name }}</div>
+          <span class="fw-bold">{{ b.total_marks }} / {{ b.exam.max_marks }}</span>
+        </div>
+      {% else %}
+        <p class="text-muted mb-0">No results published yet.</p>
+      {% endfor %}
+      {% if results %}<a href="{{ url_for('student.results') }}" class="btn btn-sm btn-outline-primary mt-3">See marks and feedback</a>{% endif %}
+    </div></div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card h-100"><div class="card-body">
+      <h5 class="card-title mb-3">Exams open for booking</h5>
+      {% for exam in open_exams %}
+        <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+          <div>
+            <div class="fw-semibold">{{ exam.name }} <span class="small text-muted">({{ exam.course.code }})</span></div>
+            <div class="small text-muted">{{ exam.exam_type }} · book before {{ exam.booking_end.strftime('%d %b %Y') }}</div>
+          </div>
+          <a href="{{ url_for('student.exam_slots', exam_id=exam.id) }}" class="btn btn-sm btn-primary">View slots</a>
+        </div>
+      {% else %}
+        <p class="text-muted mb-0">No exams are open for booking right now.</p>
+      {% endfor %}
+    </div></div>
+  </div>
+</div>
+{% endblock %}

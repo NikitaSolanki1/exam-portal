@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}{{ exam.name }}{% endblock %}
+{% block content %}
+<div class="mb-3">
+  <div class="text-muted small">{{ exam.course.code }} · {{ exam.course.name }}</div>
+  <h3 class="page-title mb-1">{{ exam.name }}</h3>
+  <span class="badge status-{{ exam.status|lower|replace(' ', '-') }}">{{ exam.status }}</span>
+  <span class="text-muted small ms-2">{{ exam.exam_type }} · {{ exam.duration }} min · {{ exam.max_marks }} marks</span>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-4">
+    <div class="card"><div class="card-body">
+      <h5 class="card-title">Create a slot</h5>
+      <p class="small text-muted">Slot creation period: {{ exam.slot_start.strftime('%d %b') }} – {{ exam.slot_end.strftime('%d %b %Y') }}</p>
+      {% if can_create %}
+        <form method="post">
+          <div class="mb-2"><label class="form-label small">Date</label>
+            <input type="date" name="date" class="form-control" min="{{ today }}" required></div>
+          <div class="row g-2 mb-2">
+            <div class="col"><label class="form-label small">Start time</label><input type="time" name="start_time" class="form-control" required></div>
+            <div class="col"><label class="form-label small">End time</label><input type="time" name="end_time" class="form-control" required></div>
+          </div>
+          <div class="mb-3"><label class="form-label small">Maximum students</label>
+            <input type="number" name="capacity" min="1" value="1" class="form-control" required></div>
+          <button class="btn btn-primary w-100">Create slot</button>
+        </form>
+      {% else %}
+        <div class="alert alert-secondary small mb-0">Slot creation is closed. You can add slots only after the admin opens slot creation, and before {{ exam.slot_end.strftime('%d %b %Y') }}.</div>
+      {% endif %}
+    </div></div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card"><div class="card-body">
+      <h5 class="card-title mb-3">My slots and booked students</h5>
+      {% for slot in exam.slots %}
+        <div class="border rounded-3 p-3 mb-3">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+              <span class="fw-semibold">{{ slot.date.strftime('%a, %d %b %Y') }}</span>
+              <span class="text-muted">· {{ slot.start_time.strftime('%H:%M') }} – {{ slot.end_time.strftime('%H:%M') }}</span>
+              <span class="badge status-{{ slot.status|lower }} ms-1">{{ slot.status }}</span>
+              <span class="small text-muted ms-1">{{ slot.available_seats }} of {{ slot.capacity }} seats free</span>
+            </div>
+            {% if exam.status in ['Draft', 'Slot Creation'] and not slot.bookings %}
+              <div class="d-flex gap-1">
+                <a href="{{ url_for('examiner.edit_slot', slot_id=slot.id) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                <form method="post" action="{{ url_for('examiner.delete_slot', slot_id=slot.id) }}">
+                  <button class="btn btn-sm btn-outline-danger">Remove</button>
+                </form>
+              </div>
+            {% endif %}
+          </div>
+
+          {% for b in slot.bookings if b.status != 'Cancelled' %}
+            <div class="d-flex justify-content-between align-items-center border-top mt-2 pt-2">
+              <div>
+                <i class="bi bi-person"></i> {{ b.student.name }} <span class="small text-muted">{{ b.student.email }}</span>
+                <span class="badge status-{{ b.status|lower }} ms-1">{{ b.status }}</span>
+                {% if b.total_marks is not none %}<span class="small ms-1">{{ b.total_marks }} / {{ exam.max_marks }}</span>{% endif %}
+              </div>
+              <a href="{{ url_for('examiner.evaluate', booking_id=b.id) }}" class="btn btn-sm {{ 'btn-outline-success' if b.status == 'Completed' else 'btn-success' }}">
+                {{ 'Edit marks' if b.status == 'Completed' else 'Evaluate' }}
+              </a>
+            </div>
+          {% else %}
+            <div class="small text-muted mt-2">No students booked yet.</div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-muted mb-0">You have not created any slots for this exam yet.</p>
+      {% endfor %}
+    </div></div>
+  </div>
+</div>
+{% endblock %}

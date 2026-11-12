@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}All slots{% endblock %}
+{% block content %}
+<h3 class="page-title mb-3">All examination slots</h3>
+
+<div class="card"><div class="card-body">
+  {% if slots %}
+  <div class="table-responsive">
+    <table class="table mb-0">
+      <thead><tr><th>ID</th><th>Exam</th><th>Course</th><th>Examiner</th><th>Date</th><th>Time</th><th>Seats left</th><th>Status</th></tr></thead>
+      <tbody>
+      {% for slot in slots %}
+        <tr>
+          <td>{{ slot.id }}</td>
+          <td><a href="{{ url_for('admin.exam_detail', exam_id=slot.exam_id) }}">{{ slot.exam.name }}</a></td>
+          <td>{{ slot.exam.course.code }}</td>
+          <td>{{ slot.examiner.name }}</td>
+          <td>{{ slot.date.strftime('%a, %d %b %Y') }}</td>
+          <td>{{ slot.start_time.strftime('%H:%M') }} – {{ slot.end_time.strftime('%H:%M') }}</td>
+          <td>{{ slot.available_seats }} / {{ slot.capacity }}</td>
+          <td><span class="badge status-{{ slot.status|lower }}">{{ slot.status }}</span></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="text-muted mb-0">No slots have been created yet.</p>
+  {% endif %}
+</div></div>
+{% endblock %}

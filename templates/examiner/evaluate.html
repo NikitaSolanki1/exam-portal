@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Evaluate {{ booking.student.name }}{% endblock %}
+{% block content %}
+<div class="card mx-auto" style="max-width: 720px"><div class="card-body p-4">
+  <h4 class="fw-bold mb-1">Evaluate {{ booking.student.name }}</h4>
+  <p class="text-muted">
+    {{ exam.name }} · {{ booking.slot.date.strftime('%a, %d %b %Y') }}, {{ booking.slot.start_time.strftime('%H:%M') }}<br>
+    {{ booking.student.email }} · {{ booking.student.department or 'No department' }}
+  </p>
+
+  <form method="post">
+    <table class="table">
+      <thead><tr><th>Criterion</th><th>Weightage</th><th style="width: 150px">Marks</th></tr></thead>
+      <tbody>
+      {% for rubric in exam.rubrics %}
+        <tr>
+          <td><div class="fw-semibold">{{ rubric.criterion }}</div><div class="small text-muted">{{ rubric.description or '' }}</div></td>
+          <td>{{ rubric.weightage }}%</td>
+          <td>
+            <div class="input-group">
+              <input type="number" name="rubric_{{ rubric.id }}" class="form-control" min="0" max="{{ rubric.max_marks }}"
+                     value="{{ old_marks.get(rubric.id, '') }}" required>
+              <span class="input-group-text">/ {{ rubric.max_marks }}</span>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <div class="mb-3">
+      <label class="form-label">Remarks for the student</label>
+      <textarea name="remarks" class="form-control" rows="3" required>{{ booking.remarks or '' }}</textarea>
+    </div>
+    <button class="btn btn-success">Submit marks</button>
+    <a href="{{ url_for('examiner.exam_page', exam_id=exam.id) }}" class="btn btn-link">Cancel</a>
+  </form>
+</div></div>
+{% endblock %}
